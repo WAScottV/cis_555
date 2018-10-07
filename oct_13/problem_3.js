@@ -4,7 +4,6 @@ const main = () => {
     util.readFile(process.argv[2])
         .then(text => {
             console.log(count(text, parseInt(process.argv[3])));
-            //temp.keys.foreach(k => console.log(k));
         })
         .catch(console.log);
 };
