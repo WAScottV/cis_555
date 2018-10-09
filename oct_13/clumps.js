@@ -1,5 +1,9 @@
+
 const findClumps = (genome, k, L, t) => {
     const clumps = {};
+    const logClump = () => {
+
+    };
     for (i = 0; i <= genome.length - k; i++) {
         const kmer = genome.substring(i, i + k);
         if (clumps[kmer]) {
@@ -14,12 +18,12 @@ const findClumps = (genome, k, L, t) => {
         let temp = findClumpStart(clump, L, t);
         if (temp) {
             clumpStarts.push(temp);
-        } 
+        }
     });
     let clumpString = '';
     for (i = 0; i < clumpStarts.length; i ++) {
         const s = clumpStarts[i];
-        clumpString += genome.substring(s, s + t) + ' ';
+        clumpString += genome.substring(s, s + k) + ' ';
     }
     console.log(clumpString);
 };
@@ -27,8 +31,10 @@ const findClumps = (genome, k, L, t) => {
 const findClumpStart = (arr, L, dist) => {
     const window = { start: 0, end: dist - 1 };
 
+    const qualifiesAsClump = () => arr[window.end] - arr[window.start] <= L;
+
     while (arr.length > window.end) {
-        if (arr[window.end] - arr[window.start] <= L) {
+        if (qualifiesAsClump()) {
             return arr[window.start];
         }
         window.start++;
@@ -36,6 +42,8 @@ const findClumpStart = (arr, L, dist) => {
     }
     return null;
 };
+
+
 
 const genome = 'CGGACTCGACAGATGTGAAGAAATGTGAAGACTGAGTGAAGAGAAGAGGAAACACGACACGACATTGCGACATAATGTACGAATGTAATGTGCCTATGGC';
 
