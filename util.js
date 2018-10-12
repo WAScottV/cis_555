@@ -1,3 +1,5 @@
+// Async util function used to read files.
+
 const fs = require('fs');
 
 const readFile = (path) => {
