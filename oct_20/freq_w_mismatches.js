@@ -1,6 +1,6 @@
 const util = require('../util');
 
-const dictionary = { 'A': 0, 'C': 1, 'G': 2, 'T': 3 };
+const map = ['A', 'C', 'G', 'T'];
 
 const main = () => {
     util.readFile(process.argv[2])
@@ -9,7 +9,8 @@ const main = () => {
             // const [ k, d ] = params.split(' ');
             // const x = freqWithMismatches(text, parseInt(k), parseInt(d));
             // console.log(x);
-            console.log(possibilities('AA', 1));
+            // console.log(toBase4(4, 0));
+            console.log(combos(2));
         })
         .catch(console.error);
 };
@@ -38,27 +39,50 @@ const occurrencesWithMismatches = (text, pattern, mismatchCount) => {
     return {kmer: pattern, count: retVal};
 }
 
-const possibilities = (kmer, d) => {
-    const perms = [];
-    for (let i = 0; i <= kmer.length - d; i ++) {
-        for (let j = 0; j < d; j++) {
-            const x = replaceLetterAtPos(kmer, d + i, 'a');
-            perms.push(x);
-        }
+const combos = (d) => {
+    const letters = [];
+    const max = Math.pow(4, d);
+    for (let i = 0; i < max; i++) {
+        letters.push(toBase4(i, d));
     }
-    return perms;
+    const temp = letters.map(l => mapToNucleotides(l));
+    console.log(temp);
 };
 
-const replaceLetterAtPos = (text, pos, newLetter) => {
-    let beginning = '';
-    if (pos === 0 ) {
-        return newLetter + text.substring(1);
-    } else {
-        beginning = text.substring(0, pos);
-        return beginning + newLetter + text.substring(pos + 1);
-    }
+const toBase4 = (num, digits) => {
+    let temp = num.toString(4);
+    return temp.padStart(digits, '0');
+}
 
+const mapToNucleotides = (base4String) => {
+    let str = '';
+    for (let char of base4String) {
+        str += map[parseInt(char)];
+    }
+    return str;
 };
+
+// const possibilities = (kmer, d) => {
+//     const perms = [];
+//     for (let i = 0; i <= kmer.length - d; i ++) {
+//         for (let j = 0; j < d; j++) {
+//             const x = replaceLetterAtPos(kmer, d + i, 'a');
+//             perms.push(x);
+//         }
+//     }
+//     return perms;
+// };
+
+// const replaceLetterAtPos = (text, pos, newLetter) => {
+//     let beginning = '';
+//     if (pos === 0 ) {
+//         return newLetter + text.substring(1);
+//     } else {
+//         beginning = text.substring(0, pos);
+//         return beginning + newLetter + text.substring(pos + 1);
+//     }
+
+// };
 
 const freqWithMismatches = (text, kmerLen, mismatchCount) => {
     const vals = [];
