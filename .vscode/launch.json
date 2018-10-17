@@ -8,10 +8,9 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/oct_13/clumps.js",
+            "program": "${workspaceFolder}/oct_20/freq_w_mismatches.js",
             "args": [
-                "/Users/williamScott/Downloads/rosalind_dna.txt",
-                "AGCCTTTAG"
+                "/Users/williamscott/Downloads/rosalind_ba1g.txt"
             ]
         }
     ]
