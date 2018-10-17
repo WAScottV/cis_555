@@ -1,12 +1,15 @@
 const util = require('../util');
 
+const dictionary = { 'A': 0, 'C': 1, 'G': 2, 'T': 3 };
+
 const main = () => {
     util.readFile(process.argv[2])
         .then(file => {
-            const [text, params] = file.split(/\r?\n/);
-            const [ k, d ] = params.split(' ');
-            const x = freqWithMismatches(text, parseInt(k), parseInt(d));
-            console.log(x);
+            // const [text, params] = file.split(/\r?\n/);
+            // const [ k, d ] = params.split(' ');
+            // const x = freqWithMismatches(text, parseInt(k), parseInt(d));
+            // console.log(x);
+            console.log(possibilities('AA', 1));
         })
         .catch(console.error);
 };
@@ -35,6 +38,28 @@ const occurrencesWithMismatches = (text, pattern, mismatchCount) => {
     return {kmer: pattern, count: retVal};
 }
 
+const possibilities = (kmer, d) => {
+    const perms = [];
+    for (let i = 0; i <= kmer.length - d; i ++) {
+        for (let j = 0; j < d; j++) {
+            const x = replaceLetterAtPos(kmer, d + i, 'a');
+            perms.push(x);
+        }
+    }
+    return perms;
+};
+
+const replaceLetterAtPos = (text, pos, newLetter) => {
+    let beginning = '';
+    if (pos === 0 ) {
+        return newLetter + text.substring(1);
+    } else {
+        beginning = text.substring(0, pos);
+        return beginning + newLetter + text.substring(pos + 1);
+    }
+
+};
+
 const freqWithMismatches = (text, kmerLen, mismatchCount) => {
     const vals = [];
     let max = 0;
@@ -44,7 +69,7 @@ const freqWithMismatches = (text, kmerLen, mismatchCount) => {
         max = cur.count > max ? cur.count : max;
         vals.push(cur);
     }
-    
+
     vals.forEach(v => console.log(v));
     return vals.filter(v => v.count === max)
         .map(obj => obj.kmer)
