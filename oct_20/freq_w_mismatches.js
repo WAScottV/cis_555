@@ -1,30 +1,57 @@
 const util = require('../util');
 
 const map = ['A', 'C', 'G', 'T'];
+let combos = [];
 
 const main = () => {
     util.readFile(process.argv[2])
         .then(file => {
-            // const [text, params] = file.split(/\r?\n/);
-            // const [ k, d ] = params.split(' ');
-            // const x = freqWithMismatches(text, parseInt(k), parseInt(d));
-            // console.log(x);
-            // console.log(toBase4(4, 0));
-            console.log(combos(2));
+            const [text, params] = file.split(/\r?\n/);
+            const [k, d] = params.split(' ');
+            combos = generateNucleotideCombos(d);
+            const result = freqWithMismatches(text, parseInt(k), parseInt(d));
+            console.log(result);
         })
         .catch(console.error);
 };
 
-const hammingDist = (dna1, dna2) => {
+const freqWithMismatches = (text, kmerLen, mismatchCount) => {
+    const vals = [];
+    let max = 0;
 
-    let hDist = 0;
-    for (let i = 0; i < dna1.length; i++) {
-        if (dna1.substring(i, i + 1) !== 
-            dna2.substring(i, i + 1)) {
-                hDist++;
+    for (let i = 0; i < text.length - kmerLen; i++) {
+        const thisKmer = text.substring(i, i + kmerLen);
+
+        const possibleKmers = createPossibleKmers(thisKmer);
+        possibleKmers.forEach(kmer => {
+            const cur = occurrencesWithMismatches(text, kmer, mismatchCount);
+            max = cur.count > max ? cur.count : max;
+            vals.push(cur);
+        });
+    }
+
+    vals.forEach(v => console.log(v));
+    return vals.filter(v => v.count === max)
+        .map(obj => obj.kmer)
+        .filter(uniqueValues)
+        .join(' ');
+};
+
+const createPossibleKmers = (origKmer) => {
+    const retVals = [];
+    const charsToReplace = combos[0].length;
+    for (let repStart = 0; repStart <= origKmer.length - charsToReplace; repStart++) {
+        for (let j = 0; j < combos.length; j++) {
+            if (repStart === 0) {
+                retVals.push(combos[j] + origKmer.substring(charsToReplace));
+            } else if (repStart + charsToReplace === origKmer.length) {
+                retVals.push(origKmer.substring(0, repStart) + combos[j]);
+            } else {
+                retVals.push(origKmer.substring(0, repStart) + combos[j] + origKmer.substring(repStart + charsToReplace));
+            }
         }
     }
-    return hDist;
+    return retVals.filter(uniqueValues);
 };
 
 const occurrencesWithMismatches = (text, pattern, mismatchCount) => {
@@ -36,17 +63,29 @@ const occurrencesWithMismatches = (text, pattern, mismatchCount) => {
             retVal++;
         }
     }
-    return {kmer: pattern, count: retVal};
+    return { kmer: pattern, count: retVal };
 }
 
-const combos = (d) => {
-    const letters = [];
-    const max = Math.pow(4, d);
-    for (let i = 0; i < max; i++) {
-        letters.push(toBase4(i, d));
+const hammingDist = (dna1, dna2) => {
+    let hDist = 0;
+    for (let i = 0; i < dna1.length; i++) {
+        if (dna1.substring(i, i + 1) !==
+            dna2.substring(i, i + 1)) {
+            hDist++;
+        }
     }
-    const temp = letters.map(l => mapToNucleotides(l));
-    console.log(temp);
+    return hDist;
+};
+
+const generateNucleotideCombos = (nuclCount) => {
+    const combinations = [];
+    const totalCombos = Math.pow(4, nuclCount);
+
+    for (let i = 0; i < totalCombos; i++) {
+        combinations.push(toBase4(i, nuclCount));
+    }
+    return combinations.map(l => mapToNucleotides(l));
+
 };
 
 const toBase4 = (num, digits) => {
@@ -62,42 +101,8 @@ const mapToNucleotides = (base4String) => {
     return str;
 };
 
-// const possibilities = (kmer, d) => {
-//     const perms = [];
-//     for (let i = 0; i <= kmer.length - d; i ++) {
-//         for (let j = 0; j < d; j++) {
-//             const x = replaceLetterAtPos(kmer, d + i, 'a');
-//             perms.push(x);
-//         }
-//     }
-//     return perms;
-// };
-
-// const replaceLetterAtPos = (text, pos, newLetter) => {
-//     let beginning = '';
-//     if (pos === 0 ) {
-//         return newLetter + text.substring(1);
-//     } else {
-//         beginning = text.substring(0, pos);
-//         return beginning + newLetter + text.substring(pos + 1);
-//     }
-
-// };
-
-const freqWithMismatches = (text, kmerLen, mismatchCount) => {
-    const vals = [];
-    let max = 0;
-    for (let i = 0; i < text.length - kmerLen; i++) {
-        const thisKmer = text.substring(i, i + kmerLen);
-        const cur = occurrencesWithMismatches(text, thisKmer, mismatchCount);
-        max = cur.count > max ? cur.count : max;
-        vals.push(cur);
-    }
-
-    vals.forEach(v => console.log(v));
-    return vals.filter(v => v.count === max)
-        .map(obj => obj.kmer)
-        .join(' ');
+const uniqueValues = (value, index, self) => {
+    return self.indexOf(value) === index;
 };
 
 main();
