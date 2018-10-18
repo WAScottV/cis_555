@@ -8,9 +8,9 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/oct_20/freq_w_mismatches.js",
+            "program": "${workspaceFolder}/oct_20/motif_enum.js",
             "args": [
-                "/Users/williamscott/Downloads/rosalind_ba1g.txt"
+                "/Users/williamscott/Downloads/rosalind_ba1i.txt"
             ]
         }
     ]

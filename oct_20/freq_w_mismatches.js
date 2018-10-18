@@ -1,37 +1,36 @@
 const util = require('../util');
 
-const map = ['A', 'C', 'G', 'T'];
-let combos = [];
-
 const main = () => {
     util.readFile(process.argv[2])
         .then(file => {
             const [text, params] = file.split(/\r?\n/);
             const [k, d] = params.split(' ');
-            combos = generateNucleotideCombos(k);
+
+            // get all possible nucleotide combos of the length of the kmer
             const result = freqWithMismatches(text, parseInt(k), parseInt(d));
             console.log(result);
         })
         .catch(console.error);
 };
 
-const freqWithMismatches = (text, kmerLen, mismatchCount) => {
+const freqWithMismatches = (text, k, mismatchCount) => {
     const vals = [];
     let max = 0;
-    
+
+    const combos = generateNucleotideCombos(k);
+    // iterate over all possible kmers and check for occurrence in string.
     combos.forEach(kmer => {
         const cur = occurrencesWithMismatches(text, kmer, mismatchCount);
         max = cur.count > max ? cur.count : max;
         vals.push(cur);
     });
-
-    //vals.forEach(v => console.log(v));
     return vals.filter(v => v.count === max)
         .map(obj => obj.kmer)
-        .filter(uniqueValues)
-        .join(' ');
+        .filter(uniqueValues);
 };
 
+// check whole DNA string and return # of occurrences of pattern
+// with no more than mismatchCount mismatches
 const occurrencesWithMismatches = (text, pattern, mismatchCount) => {
     const len = pattern.length;
     let retVal = 0;
@@ -55,13 +54,17 @@ const hammingDist = (dna1, dna2) => {
     return hDist;
 };
 
+// create all possible nucleotiede combos for given count nuclCount
 const generateNucleotideCombos = (nuclCount) => {
     const combinations = [];
     const totalCombos = Math.pow(4, nuclCount);
 
     for (let i = 0; i < totalCombos; i++) {
+        // generate base 4 numbers to maps to A,C,G,T
         combinations.push(toBase4(i, nuclCount));
     }
+
+    // map base 4 to nuc. letter
     return combinations.map(l => mapToNucleotides(l));
 
 };
@@ -70,6 +73,9 @@ const toBase4 = (num, digits) => {
     let temp = num.toString(4);
     return temp.padStart(digits, '0');
 }
+
+// 0 = A; 1 = C; 2 = G; 3 = T
+const map = ['A', 'C', 'G', 'T'];
 
 const mapToNucleotides = (base4String) => {
     let str = '';
@@ -84,3 +90,7 @@ const uniqueValues = (value, index, self) => {
 };
 
 main();
+
+module.exports = {
+    freqWithMismatches: freqWithMismatches,
+};
