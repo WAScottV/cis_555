@@ -8,7 +8,7 @@ const main = () => {
         .then(file => {
             const [text, params] = file.split(/\r?\n/);
             const [k, d] = params.split(' ');
-            combos = generateNucleotideCombos(d);
+            combos = generateNucleotideCombos(k);
             const result = freqWithMismatches(text, parseInt(k), parseInt(d));
             console.log(result);
         })
@@ -18,40 +18,18 @@ const main = () => {
 const freqWithMismatches = (text, kmerLen, mismatchCount) => {
     const vals = [];
     let max = 0;
+    
+    combos.forEach(kmer => {
+        const cur = occurrencesWithMismatches(text, kmer, mismatchCount);
+        max = cur.count > max ? cur.count : max;
+        vals.push(cur);
+    });
 
-    for (let i = 0; i < text.length - kmerLen; i++) {
-        const thisKmer = text.substring(i, i + kmerLen);
-
-        const possibleKmers = createPossibleKmers(thisKmer);
-        possibleKmers.forEach(kmer => {
-            const cur = occurrencesWithMismatches(text, kmer, mismatchCount);
-            max = cur.count > max ? cur.count : max;
-            vals.push(cur);
-        });
-    }
-
-    vals.forEach(v => console.log(v));
+    //vals.forEach(v => console.log(v));
     return vals.filter(v => v.count === max)
         .map(obj => obj.kmer)
         .filter(uniqueValues)
         .join(' ');
-};
-
-const createPossibleKmers = (origKmer) => {
-    const retVals = [];
-    const charsToReplace = combos[0].length;
-    for (let repStart = 0; repStart <= origKmer.length - charsToReplace; repStart++) {
-        for (let j = 0; j < combos.length; j++) {
-            if (repStart === 0) {
-                retVals.push(combos[j] + origKmer.substring(charsToReplace));
-            } else if (repStart + charsToReplace === origKmer.length) {
-                retVals.push(origKmer.substring(0, repStart) + combos[j]);
-            } else {
-                retVals.push(origKmer.substring(0, repStart) + combos[j] + origKmer.substring(repStart + charsToReplace));
-            }
-        }
-    }
-    return retVals.filter(uniqueValues);
 };
 
 const occurrencesWithMismatches = (text, pattern, mismatchCount) => {
