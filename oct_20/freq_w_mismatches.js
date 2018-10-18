@@ -89,7 +89,7 @@ const uniqueValues = (value, index, self) => {
     return self.indexOf(value) === index;
 };
 
-main();
+// main();
 
 module.exports = {
     freqWithMismatches: freqWithMismatches,
