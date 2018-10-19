@@ -1,15 +1,3 @@
-const util = require('../util');
-
-const main = () => {
-    util.readFile(process.argv[2])
-        .then((file) => {
-            const [dna1, dna2] = file.split(/\r?\n/);
-            const dist = hammingDist(dna1, dna2);
-            console.log(dist);
-        })
-        .catch(console.error);
-}
-
 const hammingDist = (dna1, dna2) => {
 
     let hDist = 0;
@@ -23,4 +11,6 @@ const hammingDist = (dna1, dna2) => {
     return hDist;
 };
 
-main();
+module.exports = {
+    hammingDist: hammingDist,
+};

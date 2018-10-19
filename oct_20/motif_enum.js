@@ -1,16 +1,3 @@
-const util = require('../util');
-
-const main = () => {
-    util.readFile(process.argv[2])
-        .then(file => {
-            const [params, ...dna] = file.split(/\r?\n/);
-            const [k, d] = params.split(' ').map(m => parseInt(m));
-            const results = motifEnumeration(dna, k, d);
-            results.forEach(r => console.log(r));
-        })
-        .catch(console.error);
-};
-
 const motifEnumeration = (dna, k, d) => {
     const patterns = {};
 
@@ -113,4 +100,6 @@ const uniqueValues = (value, index, self) => {
     return self.indexOf(value) === index;
 };
 
-main();
+module.exports = {
+    motifEnumeration: motifEnumeration,
+};

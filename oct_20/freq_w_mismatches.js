@@ -1,18 +1,3 @@
-const util = require('../util');
-
-const main = () => {
-    util.readFile(process.argv[2])
-        .then(file => {
-            const [text, params] = file.split(/\r?\n/);
-            const [k, d] = params.split(' ');
-
-            // get all possible nucleotide combos of the length of the kmer
-            const result = freqWithMismatches(text, parseInt(k), parseInt(d));
-            console.log(result);
-        })
-        .catch(console.error);
-};
-
 const freqWithMismatches = (text, k, mismatchCount) => {
     const vals = [];
     let max = 0;
@@ -21,9 +6,13 @@ const freqWithMismatches = (text, k, mismatchCount) => {
     // iterate over all possible kmers and check for occurrence in string.
     combos.forEach(kmer => {
         const cur = occurrencesWithMismatches(text, kmer, mismatchCount);
+
+        // track the max count for filtering at the end.
         max = cur.count > max ? cur.count : max;
         vals.push(cur);
     });
+
+    // only return kmers that occr 'max' times
     return vals.filter(v => v.count === max)
         .map(obj => obj.kmer)
         .filter(uniqueValues);
