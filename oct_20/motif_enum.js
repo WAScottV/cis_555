@@ -1,3 +1,7 @@
+// ******
+// ****** PROBLEM 2-4
+// ******
+
 const motifEnumeration = (dna, k, d) => {
     const patterns = {};
 

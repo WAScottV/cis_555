@@ -1,3 +1,7 @@
+// ******
+// ****** PROBLEM 2-2
+// ******
+
 const hammingDist = (dna1, dna2) => {
 
     let hDist = 0;
