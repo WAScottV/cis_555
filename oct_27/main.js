@@ -18,7 +18,7 @@ const runGreedyMotif = () => {
         .then(file => {
             const [params, ...dna] = file.split(/\r?\n/);
             const [k, t] = params.split(/\s/).map(m => parseInt(m));
-            const result = g.greedyMotifSearch(dna, k, t);
+            const result = g.greedyMotifSearch(dna.filter(d => d.length !== 0), k, t);
             console.log(result.join(' '));
         })
         .catch(console.error);

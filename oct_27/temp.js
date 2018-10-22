@@ -1,3 +1,24 @@
+const util = require('../util');
+const mpk = require('./most_prob_kmer');
+const g = require('./greedy_motif_search');
+
+// ********** MAIN ****************
+const runGreedyMotif = () => {
+    util.readFile(process.argv[2])
+        .then(file => {
+            const [params, ...dna] = file.split(/\r?\n/);
+            const [k, t] = params.split(/\s/).map(m => parseInt(m));
+            const result = g.greedyMotifSearch(dna.filter(d => d.length !== 0), k, t);
+            console.log(result.join(' '));
+        })
+        .catch(console.error);
+};
+
+
+runGreedyMotif();
+// ********** MAIN ****************
+
+// ********** greedy_motif_search.js ******************
 const mpk = require('./most_prob_kmer');
 
 const map = { 'A': 0, 'C': 1, 'G': 2, 'T': 3 };
@@ -76,4 +97,34 @@ const score = (motifs) => {
         totalScore += (motifLength - thisMax);
     }
     return totalScore;
+};
+// ********** greedy_motif_search.js******************
+
+//*********** most_prob_kmer.js ******************/
+
+const map = { 'A': 0, 'C': 1, 'G': 2, 'T': 3 };
+
+module.exports.findMostProbKmer = (text, k, profile) => {
+    const result = {};
+    let maxProb = 0;
+    for (let i = 0; i <= text.length - k; i++) {
+        const kmer = text.substring(i, i + k);
+        
+        if (!result[kmer]) {
+            result[kmer] = 1;
+        } else {
+            break;
+        }
+
+        for (let j = 0; j < kmer.length; j++) {
+            const letter = kmer.substring(j, j + 1);
+            const thisProb = profile[map[letter]][j];
+            result[kmer] *= thisProb;
+        }
+        
+        if (result[kmer] > maxProb) {
+            maxProb = result[kmer];
+        }
+    }
+    return Object.keys(result).find(k => result[k] === maxProb);
 };
