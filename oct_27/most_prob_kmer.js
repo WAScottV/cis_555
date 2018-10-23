@@ -6,6 +6,8 @@ module.exports.findMostProbKmer = (text, k, profile) => {
     for (let i = 0; i <= text.length - k; i++) {
         const kmer = text.substring(i, i + k);
         
+        // add kmer for consideration if not yet calculated.
+        // otherwise, skip.
         if (!result[kmer]) {
             result[kmer] = 1;
         } else {

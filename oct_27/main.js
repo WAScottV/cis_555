@@ -6,9 +6,9 @@ const runMostProbKmer = () => {
     util.readFile(process.argv[2])
         .then(file => {
             const [text, k, ...rawProfile] = file.split(/\r?\n/);
-            const profile = rawProfile.map(p => p.split(' ').map(Number));
+            const profile = rawProfile.map(p => p.split(' ').map(eval));
             const kmer = mpk.findMostProbKmer(text, parseInt(k), profile);
-            console.log(kmer.join(' '));
+            console.log(kmer);
         })
         .catch(console.error);
 };
