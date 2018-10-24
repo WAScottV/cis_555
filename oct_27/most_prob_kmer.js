@@ -11,7 +11,7 @@ module.exports.findMostProbKmer = (text, k, profile) => {
         if (!result[kmer]) {
             result[kmer] = 1;
         } else {
-            break;
+            continue;
         }
 
         for (let j = 0; j < kmer.length; j++) {

@@ -2,9 +2,8 @@ const mpk = require('./most_prob_kmer');
 
 const map = { 'A': 0, 'C': 1, 'G': 2, 'T': 3 };
 let profileData;
-let pseudo;
 
-module.exports.greedyMotifSearch = (dna, k, t, pseudo = false) => {
+module.exports.greedyMotifSearch = (dna, k, t) => {
     // set to first kmer in each DNA string
     let bestMotifs = dna.map(d => d.substring(0, k));
 
@@ -13,10 +12,10 @@ module.exports.greedyMotifSearch = (dna, k, t, pseudo = false) => {
         initProfile(k);
 
         const motifs = [dna[0].substring(i, i + k)];
-        let profile = updateProfile(motifs[0], pseudo);
+        let profile = updateProfile(motifs[0], 1);
         for (let j = 1; j < t; j++) {
             motifs[j] = mpk.findMostProbKmer(dna[j], k, profile);
-            profile = updateProfile(motifs[j], pseudo);
+            profile = updateProfile(motifs[j], j + 1);
         }
         if (score(motifs) < score(bestMotifs)) {
             bestMotifs = motifs;
@@ -32,7 +31,7 @@ const initProfile = (k) => {
     }
 };
 
-const updateProfile = (motif, pseudo) => {
+const updateProfile = (motif, j, pseudo) => {
 
     // update raw data for profile
     for (let i = 0; i < motif.length; i++) {
@@ -48,7 +47,7 @@ const updateProfile = (motif, pseudo) => {
 
     const pseudoCount = 0;
     // return "normalized" profile
-    return profileData.map(p => p.map(m => m / profileData.length));
+    return profileData.map(p => p.map(m => m / (j + 4 * j)));
 };
 
 const score = (motifs) => {
