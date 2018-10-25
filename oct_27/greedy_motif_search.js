@@ -3,7 +3,7 @@ const mpk = require('./most_prob_kmer');
 const map = { 'A': 0, 'C': 1, 'G': 2, 'T': 3 };
 let profileData;
 
-module.exports.greedyMotifSearch = (dna, k, t) => {
+module.exports.greedyMotifSearch = (dna, k, t, pseudo) => {
     // set to first kmer in each DNA string
     let bestMotifs = dna.map(d => d.substring(0, k));
 
@@ -12,10 +12,12 @@ module.exports.greedyMotifSearch = (dna, k, t) => {
         initProfile(k);
 
         const motifs = [dna[0].substring(i, i + k)];
-        let profile = updateProfile(motifs[0], 1);
+        let profile = updateProfile(motifs[0], 1, pseudo);
+
+        // add new motifs based on profile and update profile.
         for (let j = 1; j < t; j++) {
             motifs[j] = mpk.findMostProbKmer(dna[j], k, profile);
-            profile = updateProfile(motifs[j], j + 1);
+            profile = updateProfile(motifs[j], j + 1, pseudo);
         }
         if (score(motifs) < score(bestMotifs)) {
             bestMotifs = motifs;
@@ -31,7 +33,7 @@ const initProfile = (k) => {
     }
 };
 
-const updateProfile = (motif, j, pseudo) => {
+const updateProfile = (motif, j, pseudo = false) => {
 
     // update raw data for profile
     for (let i = 0; i < motif.length; i++) {
@@ -39,15 +41,22 @@ const updateProfile = (motif, j, pseudo) => {
         profileData[map[nuc]][i]++;
     }
 
-    for (let i = 0; i < 4; i ++) {
-        for (let j = 0; j < profileData[0].length; j++) {
-            profileData[i][j]++;
+    let denom = j;
+
+    // adjust profile and denominator if using pseudoCounts
+    if (pseudo) {
+        for (let i = 0; i < 4; i ++) {
+            for (let j = 0; j < profileData[0].length; j++) {
+                profileData[i][j]++;
+            }
         }
+
+        // add 4 to denominator each time when normalizing.
+        denom += 4 * denom;
     }
 
-    const pseudoCount = 0;
     // return "normalized" profile
-    return profileData.map(p => p.map(m => m / (j + 4 * j)));
+    return profileData.map(p => p.map(m => m / denom));
 };
 
 const score = (motifs) => {

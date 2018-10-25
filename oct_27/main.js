@@ -24,5 +24,17 @@ const runGreedyMotif = () => {
         .catch(console.error);
 };
 
-// runMostProbKmer();
-runGreedyMotif();
+const runGreedyMotifWithPseduo = () => {
+    util.readFile(process.argv[2])
+        .then(file => {
+            const [params, ...dna] = file.split(/\r?\n/);
+            const [k, t] = params.split(/\s/).map(m => parseInt(m));
+            const result = g.greedyMotifSearch(dna.filter(d => d.length !== 0), k, t, true);
+            console.log(result.join(' '));
+        })
+        .catch(console.error);
+};
+
+runMostProbKmer();
+// runGreedyMotif();
+// runGreedyMotifWithPseduo();

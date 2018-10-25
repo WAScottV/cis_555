@@ -46,3 +46,209 @@ GATTAGTGATTACA
 2/3 1/6 1/18 0 2/9 1/18 0 1/2 15/18 11/18 5/18 1/3
 
 as input.
+
+
+// ******
+// ****** CODE COMMON TO ALL THREE PROBLEMS
+// ******
+
+// Async util function used to read files.
+
+const fs = require('fs');
+
+const readFile = (path) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+};
+
+module.exports = {
+    readFile: readFile,
+};
+
+const util = require('../util');
+const mpk = require('./most_prob_kmer');
+const g = require('./greedy_motif_search');
+
+const runMostProbKmer = () => {
+    util.readFile(process.argv[2])
+        .then(file => {
+            const [text, k, ...rawProfile] = file.split(/\r?\n/);
+            const profile = rawProfile.map(p => p.split(' ').map(eval));
+            const kmer = mpk.findMostProbKmer(text, parseInt(k), profile);
+            console.log(kmer);
+        })
+        .catch(console.error);
+};
+
+const runGreedyMotif = () => {
+    util.readFile(process.argv[2])
+        .then(file => {
+            const [params, ...dna] = file.split(/\r?\n/);
+            const [k, t] = params.split(/\s/).map(m => parseInt(m));
+            const result = g.greedyMotifSearch(dna.filter(d => d.length !== 0), k, t);
+            console.log(result.join(' '));
+        })
+        .catch(console.error);
+};
+
+const runGreedyMotifWithPseduo = () => {
+    util.readFile(process.argv[2])
+        .then(file => {
+            const [params, ...dna] = file.split(/\r?\n/);
+            const [k, t] = params.split(/\s/).map(m => parseInt(m));
+            const result = g.greedyMotifSearch(dna.filter(d => d.length !== 0), k, t, true);
+            console.log(result.join(' '));
+        })
+        .catch(console.error);
+};
+
+runMostProbKmer();
+runGreedyMotif();
+runGreedyMotifWithPseduo();
+
+// ******
+// ****** CODE COMMON TO ALL THREE PROBLEMS
+// ******
+
+
+// ******
+// ****** PROBLEM 3-2
+// ******
+
+const map = { 'A': 0, 'C': 1, 'G': 2, 'T': 3 };
+
+module.exports.findMostProbKmer = (text, k, profile) => {
+    const result = {};
+    let maxProb = 0;
+    for (let i = 0; i <= text.length - k; i++) {
+        const kmer = text.substring(i, i + k);
+        
+        // add kmer for consideration if not yet calculated.
+        // otherwise, skip.
+        if (!result[kmer]) {
+            result[kmer] = 1;
+        } else {
+            continue;
+        }
+
+        for (let j = 0; j < kmer.length; j++) {
+            const letter = kmer.substring(j, j + 1);
+            const thisProb = profile[map[letter]][j];
+            result[kmer] *= thisProb;
+        }
+        
+        if (result[kmer] > maxProb) {
+            maxProb = result[kmer];
+        }
+    }
+    return Object.keys(result).find(k => result[k] === maxProb);
+};
+
+// ******
+// ****** PROBLEM 3-3 AND 3-4
+// ****** THIS PROBLEM CAN BE RUN WITH PSEUDOCOUNTS
+// ****** WITH THE USE OF THE PSEUDO FLAG
+// ****** THEREFORE, THIS DOUBLES AS A SOLUTION TO BOTH PROBLEMS
+// ******
+
+const mpk = require('./most_prob_kmer');
+
+const map = { 'A': 0, 'C': 1, 'G': 2, 'T': 3 };
+let profileData;
+
+module.exports.greedyMotifSearch = (dna, k, t, pseudo) => {
+    // set to first kmer in each DNA string
+    let bestMotifs = dna.map(d => d.substring(0, k));
+
+    // for each kmer in first DNA string
+    for (let i = 0; i <= dna[0].length - k; i++) {
+        initProfile(k);
+
+        const motifs = [dna[0].substring(i, i + k)];
+        let profile = updateProfile(motifs[0], 1, pseudo);
+
+        // add new motifs based on profile and update profile.
+        for (let j = 1; j < t; j++) {
+            motifs[j] = mpk.findMostProbKmer(dna[j], k, profile);
+            profile = updateProfile(motifs[j], j + 1, pseudo);
+        }
+        if (score(motifs) < score(bestMotifs)) {
+            bestMotifs = motifs;
+        }
+    }
+    return bestMotifs;
+};
+
+const initProfile = (k) => {
+    profileData = [[], [], [], [],];
+    for (let i = 0; i < 4; i ++) {
+        profileData[i] = Array(k).fill(0);
+    }
+};
+
+const updateProfile = (motif, j, pseudo = false) => {
+
+    // update raw data for profile
+    for (let i = 0; i < motif.length; i++) {
+        const nuc = motif.substring(i, i + 1);
+        profileData[map[nuc]][i]++;
+    }
+
+    let denom = j;
+
+    // adjust profile and denominator if using pseudoCounts
+    if (pseudo) {
+        for (let i = 0; i < 4; i ++) {
+            for (let j = 0; j < profileData[0].length; j++) {
+                profileData[i][j]++;
+            }
+        }
+
+        // add 4 to denominator each time when normalizing.
+        denom += 4 * denom;
+    }
+
+    // return "normalized" profile
+    return profileData.map(p => p.map(m => m / denom));
+};
+
+const score = (motifs) => {
+    const motifLength = motifs[0].length;
+    const charOccurs = { A: Array(motifLength).fill(0), 
+                            C: Array(motifLength).fill(0), 
+                            G: Array(motifLength).fill(0), 
+                            T: Array(motifLength).fill(0), }
+
+    // for each motif
+    for (let i = 0; i < motifs.length; i++) {
+        // for each character in the motif
+        for (let j = 0; j < motifLength; j++) {
+            // increment occurrence count of character
+            charOccurs[motifs[i][j]][j] += 1;
+        }
+    }
+
+    // calculate score
+    let totalScore = 0;
+
+    // for every character position in each motif
+    for (let i = 0; i < motifLength; i++) {
+        let thisMax = 0;
+
+        // check each character count and find max
+        Object.keys(charOccurs).forEach(k => {
+            if (charOccurs[k][i] > thisMax) {
+                thisMax = charOccurs[k][i];
+            }
+        });
+        totalScore += (motifLength - thisMax);
+    }
+    return totalScore;
+};
