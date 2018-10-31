@@ -8,9 +8,9 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/oct_27/main.js",
+            "program": "${workspaceFolder}/nov_3/main.js",
             "args": [
-                "/Users/williamscott/Downloads/rosalind_ba2d.txt"
+                "/Users/williamscott/Downloads/rosalind_ba3a.txt"
             ]
         }
     ]
