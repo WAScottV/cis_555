@@ -16,10 +16,13 @@ const runReconstruct = () => {
     util.readFile(process.argv[2])
         .then(file => {
             const kmers = file.split(/\r?\n/);
-            const result = r.reconstruct(kmers);
+
+            // filter to protect against empty lines at end of input.
+            const result = r.reconstruct(kmers.filter(k => k.length > 0));
             console.log(result);
         })
+        .catch(console.error);
 };
 
-// runKmerComposition();
+runKmerComposition();
 runReconstruct();

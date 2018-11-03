@@ -1,0 +1,115 @@
+// ******
+// ****** PROBLEM 4-1
+// ******
+
+SEE ATTACHED IMAGES
+
+// ******
+// ****** PROBLEM 4-2
+// ******
+
+SEE ATTACHED IMAGES
+
+*************************************************
+*************************************************
+*****SHARED CODE USED TO RUN BELOW PROBLEMS******
+*************************************************
+*************************************************
+
+// Async util function used to read files.
+
+const fs = require('fs');
+
+const readFile = (path) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+};
+
+module.exports = {
+    readFile: readFile,
+};
+
+const util = require('../util');
+const kC = require('./kmer_comp');
+const r = require('./reconstruct');
+
+const runKmerComposition = () => {
+    util.readFile(process.argv[2])
+        .then(file => {
+            const [k, text] = file.split(/\r?\n/);
+            const result = kC.kmerComposition(parseInt(k), text);
+            console.log(result.join('\r\n'));
+        })
+        .catch(console.error);
+};
+
+const runReconstruct = () => {
+    util.readFile(process.argv[2])
+        .then(file => {
+            const kmers = file.split(/\r?\n/);
+
+            // filter to protect against empty lines at end of input.
+            const result = r.reconstruct(kmers.filter(k => k.length > 0));
+            console.log(result);
+        })
+        .catch(console.error);
+};
+
+runKmerComposition();
+runReconstruct();
+
+// ******
+// ****** PROBLEM 4-3
+// ******
+
+
+module.exports.kmerComposition = (k, text) => {
+    const comp_k = [];
+    for (let i = 0; i <= text.length - k; i++) {
+        comp_k.push(text.substring(i, i + k));
+    }
+    return comp_k;
+};
+
+// ******
+// ****** PROBLEM 4-4
+// ******
+
+module.exports.reconstruct = (kmers) => {
+    
+    // legnth of strings to compare
+    const windowLen = kmers[0].length - 2;
+    let answer = '';
+
+    // try all kmers as first pattern in text
+    for (let i = 0; i < kmers.length; i++) {
+
+        answer = kmers[i];
+
+        // conditionally append all other kmers, excluding the current one.
+        for (let j = 0; j < kmers.length; j ++) {
+            if (j === i) continue;
+
+            // only append if windows are equal; otherwise, break;
+            if (answer.substring(j, j + windowLen) === kmers[j].substring(0, windowLen)) {
+                answer += kmers[j].substring(windowLen + 1);
+            } else {
+                break;
+            }
+        }
+
+        // check for new string to be correct length.
+        if (answer.length === (windowLen + kmers.length + 1)) {
+            break;
+        }
+    }
+
+    return answer;
+};
