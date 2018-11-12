@@ -24,5 +24,5 @@ const runReconstruct = () => {
         .catch(console.error);
 };
 
-runKmerComposition();
+// runKmerComposition();
 runReconstruct();
