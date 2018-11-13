@@ -1,37 +1,35 @@
 module.exports.reconstruct = (k, kmers) => {
-    
-    // for loop over array.
-    // start with first element and remove.
-    // filter to get next element that matches end of the first one.
-    // loop until no matches are found
-    // check for correctness. repeat
 
-    
-
-    // legnth of strings to compare
-    const windowLen = kmers[0].length - 2;
-    let answer = '';
-
-    // try all kmers as first pattern in text
     for (let i = 0; i < kmers.length; i++) {
+        // set beginning of text to next element in array
+        let text = kmers[i];
 
-        answer = kmers[i];
+        // clone array
+        const newKmers = JSON.parse(JSON.stringify(kmers));
 
-        // conditionally append all other kmers, excluding the current one.
-        for (let j = 0; j < kmers.length; j ++) {
-            if (j === i) continue;
+        // remove starting element
+        newKmers.splice(newKmers.indexOf(text), 1);
+        let overlap = '';
+        let loopCount = 1;
 
-            // only append if windows are equal; otherwise, break;
-            if (answer.substring(j, j + windowLen) === kmers[j].substring(0, windowLen)) {
-                answer += kmers[j].substring(windowLen + 1);
+        while (1) {
+            //get the overlap between two string to find.
+            overlap = text.substring(loopCount, k + loopCount - 1);
+
+            // get next kmer
+            const next = newKmers.find(k => k.startsWith(overlap));
+            if (next) {
+                newKmers.splice(newKmers.indexOf(next), 1);
+                text += next.substring(k - 1);
+            } else {
+                break;
             }
+            loopCount++;
         }
-
-        // check for new string to be correct length.
-        if (answer.length === (windowLen + kmers.length + 1)) {
-            break;
+        // if found, terminate algorithm
+        if (text.length === (kmers.length + k - 1)) {
+            return text;
         }
     }
-
-    return answer;
+    return null;
 };
