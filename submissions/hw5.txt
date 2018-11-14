@@ -1,0 +1,139 @@
+// ******
+// ****** PROBLEM 5-1
+// ******
+
+
+// ******
+// ****** PROBLEM 5-2
+// ******
+
+It is NOT possible to form a cube without cuttting the wire.
+
+See the attached drawing for PROBLEM 5-2. The smallest number of cuts that must be made
+is 4. The first three edges, we have no decisions to make; any of the directions
+we choose would give us the same results. Our first choice is after segment 4.
+We choose to go 'up' (according to how the drawing is oriented), and we can get to 9 edges
+without cutting. If we chose the other direction available to us, we could only get to 5
+edges. After we choose the contiguous path where we can get 9 edges, the remaining 3
+are all separate, so we need 4 cuts to make this work.
+
+// ******
+// ****** PROBLEM 5-3
+// ******
+
+The bubble represent error reads of the genome. If we were to read the genome perfectly, 
+we would have no deviation from the expected path. Since incorrect nucleotides are 
+introduced into the sequence, we deviate from the expected path and thus create
+a bubble until we are 'past' the error in the graph. If there were no errors,
+the bubbles would go away because we could merge the paths, as they
+would be identical.
+
+// ******
+// ****** PROBLEM 5-4
+// ******
+
+4-Universal Circular String: 0000111101100101
+
+See the attached graph for the Eulerian cycle. Boxed numbers indicate
+the order in which the edges where visited.
+
+It took the ant 3 iterations. I don't recall what my survey guess was, and I am unable
+to view it. I'll just say it was 3 :).
+
+// ******
+// ****** PROBLEM 5-5
+// ******
+
+jrumbut
+fimbriano
+plockhart
+
+I'm a sucker for simplicity. I hardly know any Python, but I'm always amazed
+at how few LOCs it takes to solve some of these problems. That was the reason for
+selecting apullabhatla and especially jrumbut (that one took like 5 lines!).
+
+I liked plockhart's because he used matlab. Not too familiar with that language,
+so it's cool to see how it can be used to solve these types of problems!
+
+// ******
+// ****** PROBLEM 5-6
+// ******
+
+//////// UTIL /////////////
+// Async util function used to read files.
+
+const fs = require('fs');
+
+const readFile = (path) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+};
+
+module.exports = {
+    readFile: readFile,
+};
+
+//////// MAIN /////////////
+const util = require('../util');
+const r = require('./reconstruct');
+
+const runReconstruct = () => {
+    util.readFile(process.argv[2])
+        .then(file => {
+            const [k, ...kmers] = file.split(/\r?\n/);
+
+            // filter to protect against empty lines at end of input.
+            const result = r.reconstruct(parseInt(k), kmers.filter(k => k.length > 0));
+            console.log(result);
+        })
+        .catch(console.error);
+};
+
+runReconstruct();
+
+////////////// RECONSTRUCT /////////////
+
+module.exports.reconstruct = (k, kmers) => {
+
+    for (let i = 0; i < kmers.length; i++) {
+        // set beginning of text to next element in array
+        let text = kmers[i];
+
+        // clone array
+        const newKmers = JSON.parse(JSON.stringify(kmers));
+
+        // remove starting element
+        newKmers.splice(newKmers.indexOf(text), 1);
+        let overlap = '';
+        let loopCount = 1;
+
+        while (1) {
+            //get the overlap between two string to find.
+            overlap = text.substring(loopCount, k + loopCount - 1);
+
+            // get next kmer
+            const next = newKmers.find(k => k.startsWith(overlap));
+            if (next) {
+                newKmers.splice(newKmers.indexOf(next), 1);
+                text += next.substring(k - 1);
+            } else {
+                break;
+            }
+            loopCount++;
+        }
+        // if found, terminate algorithm
+        if (text.length === (kmers.length + k - 1)) {
+            return text;
+        }
+    }
+
+    // return null if none found.
+    return null;
+};

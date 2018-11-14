@@ -31,5 +31,7 @@ module.exports.reconstruct = (k, kmers) => {
             return text;
         }
     }
+
+    // return null if none found.
     return null;
 };
