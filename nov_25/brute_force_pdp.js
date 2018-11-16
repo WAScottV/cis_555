@@ -1,29 +1,22 @@
 const m = require('./problem_6-1');
 
 const bruteForcePdp = (L, n) => {
+    const results = [];
     const M = Math.max(...L);
 
-    for (let i = 0; i < M - (n - 2); i ++)
-    {
+    const unique = [...new Set(L.filter(v => v > 0))];
+    for (let i = 0; i <= (unique.length - (n - 2)); i++) {
         let X = [0];
-        const temp = [];
-        
-        for (let j = 1; j <= (n - 2); j ++) {
-            temp.push(j + i);
-        }
-
-        X.push(...temp);
+        X.push(...JSON.parse(JSON.stringify(unique)).splice(i, n - 2));
         X.push(M);
 
         const deltaX = m.multiset(X);
-        
         if (deltaX.toString() === L.toString()) {
-            return X;
+            results.push(X);
         }
     }
-    return null; // no solution
+    return results;
 }
 
-const testData = [2, 3, 5];
-
-console.log(bruteForcePdp(testData, testData.length));
+const testData = [1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 9, 9, 10, 11, 12, 15];
+console.log(bruteForcePdp(testData, 7));
