@@ -24,12 +24,13 @@ const place = (L, X) => {
         L.push(...delta_y);
     }
 
-    const delta_y_2 = X.map(v => Math.abs(width - y - v));
+    const min = width - y;
+    const delta_y_2 = X.map(v => Math.abs(min - v));
     if (contains(L, delta_y_2)) {
-        X.push(width - y);
+        X.push(min);
         delta_y_2.forEach(d => L.splice(L.indexOf(d), 1));
         place(L, X);
-        X = X.filter(v => v !== (width - y));
+        X = X.filter(v => v !== min);
         L.push(...delta_y_2);
     }
     return;
@@ -37,9 +38,11 @@ const place = (L, X) => {
 
 const contains = (arr, values) => {
     let matchCount = 0;
-    const unique = [...new Set(arr)];
+    const localArr = JSON.parse(JSON.stringify(arr));
     values.forEach(v => {
-        if (unique.indexOf(v) > -1) {
+        const idx = localArr.indexOf(v);
+        if (idx > -1) {
+            localArr.splice(idx, 1);
             matchCount++;
         }
     });
