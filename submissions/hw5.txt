@@ -4,6 +4,12 @@
 
 No. 
 
+There are an odd number of telephones and they each require an odd number of connections.
+To simplify, let's divide the number of phones an connections by 11 and phrase the problem
+this way: can 9 phones be connected in such a way that each is connected with exactly 1
+other? Since we have an odd number of phones, we can connect 8 of the phones, but the 9th
+is left unconnected. The same applies for the larger example.
+
 // ******
 // ****** PROBLEM 5-2
 // ******
@@ -22,7 +28,7 @@ are all separate, so we need 4 cuts to make this work.
 // ****** PROBLEM 5-3
 // ******
 
-The bubble represent error reads of the genome. If we were to read the genome perfectly, 
+The bubbles represent error reads of the genome. If we were to read the genome perfectly, 
 we would have no deviation from the expected path. Since incorrect nucleotides are 
 introduced into the sequence, we deviate from the expected path and thus create
 a bubble until we are 'past' the error in the graph. If there were no errors,
