@@ -52,3 +52,5 @@ const contains = (arr, values) => {
 const testData = [1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 9, 9, 10, 11, 12, 15];
 partialDigest(testData);
 console.log(results);
+
+// [ [ 0, 3, 4, 5, 6, 9, 15 ], [ 0, 6, 9, 10, 11, 12, 15 ] ]
