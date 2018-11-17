@@ -1,14 +1,15 @@
 let width = 0;
 const results = [];
+let L = [], X = [];
 
-const partialDigest = (L) => {
-    width = Math.max(...L);
-    const withoutWidth = L.filter(v => v !== width);
-    const X = [0, width];
-    place(withoutWidth, X);
+const partialDigest = (_L) => {
+    width = Math.max(..._L);
+    L = _L.filter(v => v !== width);
+    X = [0, width];
+    place();
 };
 
-const place = (L, X) => {
+const place = () => {
     if (L.length === 0) {
         results.push(X);
         return;
