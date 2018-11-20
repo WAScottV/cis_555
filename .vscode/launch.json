@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/nov_25/partial_digest.js",
+            "program": "${workspaceFolder}/nov_25/brute_force_pdp.js",
             "args": [
                 "/Users/williamscott/Downloads/rosalind_ba3b.txt"
             ]
