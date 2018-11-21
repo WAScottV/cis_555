@@ -11,7 +11,7 @@ const partialDigest = (_L) => {
 
 const place = () => {
     if (L.length === 0) {
-        results.push(X);
+        results.push(X.sort((a, b) => a - b));
         return;
     }
 
@@ -53,7 +53,7 @@ const contains = (arr, values) => {
     return false;
 };
 
-// const testData = [1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 9, 9, 10, 11, 12, 15];
+// const testData = [1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 7, 7, 7, 8, 9, 10, 11, 12];
 // partialDigest(testData);
 // console.log(results);
 
