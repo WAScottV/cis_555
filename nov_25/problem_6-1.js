@@ -16,8 +16,7 @@ const multiset = (x) => {
 
 module.exports.multiset = multiset;
 
-// const testData = [0,1,2,5,7,9,12];
+// const testData = [ 0, 6, 9, 10, 11, 12, 15 ];
+// const testData2 = [0, 3, 4, 5, 6, 9, 15 ];
 // console.log(multiset(testData));
-
-// 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 7, 7, 7, 8, 9, 10, 11, 12
-// 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 7, 7, 7, 8, 9, 10, 11, 12
+// console.log(multiset(testData2));
