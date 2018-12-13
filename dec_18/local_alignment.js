@@ -1,13 +1,18 @@
 const traceBack = (d) => {
-    let stringOne = '';
-    let stringTwo = '';
+    let stringV = '';
+    let stringW = '';
 
-    let next = d.find(arr => arr.find(v => v.val === overallMaxVal)).find(x => x.val === overallMaxVal);
-    
-    while (1) {
-        
+    let start = d.find(arr => arr.find(v => v.val === overallMaxVal)).find(x => x.val === overallMaxVal);
+    stringV += start.charV;
+    stringW += start.charW;
+
+    while (start.prev.length > 0) {
+        start = start.prev[0];
+        stringV += start.charV;
+        stringW += start.charW;
     }
-    console.log(next);
+    console.log(stringV.split('').reverse().join(''));
+    console.log(stringW.split('').reverse().join(''));
 };
 
 const generateScoringMatrix = (v, w, d) => {
@@ -18,10 +23,8 @@ const generateScoringMatrix = (v, w, d) => {
             const ins = d[i][j - 1];
             const diag = d[i - 1][j - 1];
             const diagVal = v[i - 1] === w[j - 1] ? diag.val + 1 : diag.val - 1;
-            const x = v[i - 1];
-            const y = w[j - 1];
             const max = Math.max(del.val - 0.5, ins.val - 0.5, diagVal, 0);
-            d[i][j] = { val: max, prev: [] };
+            d[i][j] = { val: max, charV: '', charW: '', prev: [] };
 
             if (max > overallMaxVal) {
                 overallMaxVal = max;
@@ -29,15 +32,18 @@ const generateScoringMatrix = (v, w, d) => {
 
             if (del.val - 0.5 === max) {
                 d[i][j].prev.push(del);
-                d[i][j].op = 'del';
+                d[i][j].charV = v[i - 1];
+                d[i][j].charW = '-';
             }
             if (ins.val - 0.5 === max) {
                 d[i][j].prev.push(ins);
-                d[i][j].op = 'ins';
+                d[i][j].charV = '-';
+                d[i][j].charW = w[j - 1];
             }
             if (diagVal === max) {
                 d[i][j].prev.push(diag);
-                d[i][j].op = 'match';
+                d[i][j].charV = v[i - 1];
+                d[i][j].charW = w[j - 1];
             }
         }
     }
@@ -50,10 +56,10 @@ const initGrid = (n, m) => {
         grid[i] = new Array(m + 1);
     }
     for (let i = 0; i <= n; i++) {
-        grid[i][0] = { val: 0, prev: [], op: '' };
+        grid[i][0] = { val: 0, charV: '', charW: '', prev: [] };
     }
     for (let j = 1; j <= m; j++) {
-        grid[0][j] = { val: 0, prev: [], op: '' };
+        grid[0][j] = { val: 0, charV: '', charW: '', prev: [] };
     }
     return grid;
 }
